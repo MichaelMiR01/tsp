@@ -1,7 +1,38 @@
 #ifndef _TCL
 #include <tcl.h>
 #endif
-
+int TSP_debug(Tcl_Interp* interp, char const *format, ...) {
+    /* Helper for Debugging*/
+    char __buf [4096];
+    va_list aptr;
+    int ret;
+    va_start(aptr, format);
+    ret = vsnprintf(__buf, 4096, format, aptr);
+    va_end(aptr);
+    // compensate for surplus linebreaks, sincs puts will already write one
+    if(ret<0) return EOF;
+    if(ret>4096) ret=4096;
+    if(__buf[ret-1]=='\n') __buf[ret-1]=0;
+    Tcl_Interp* ip =  interp; 
+    if (ip==NULL) Tcl_Panic("No interp found to call tcl routine!");
+    mod_Tcl_errorCode=0;
+    Tcl_Obj*  argObjvArray [2];
+    Tcl_Obj* funcname = Tcl_NewStringObj("puts",-1);
+    Tcl_IncrRefCount(funcname);
+    argObjvArray[0] = funcname;
+    Tcl_Obj* target_1 = Tcl_NewStringObj(__buf,-1);
+    Tcl_IncrRefCount(target_1);
+    argObjvArray[1] = target_1;
+    int rs = Tcl_EvalObjv(ip, 2, argObjvArray, 0);
+    if(funcname!=NULL) Tcl_DecrRefCount(funcname);
+    if(target_1 != NULL) Tcl_DecrRefCount(target_1);
+    if(rs !=TCL_OK) {
+        Tcl_Eval (ip, "puts {Error evaluating TCL-Function puts}; puts $errorInfo; flush stdout;");
+        return EOF;
+    }
+    Tcl_DoOneEvent(TCL_DONT_WAIT|TCL_ALL_EVENTS);
+    return 1; 
+}
 
 /*********************************************************************************************/
 /* convert to an int from a string */
@@ -224,9 +255,12 @@ TSP_Util_lang_assign_var_var(Tcl_Obj* targetVarName, Tcl_Obj* sourceVarName) {
 
 /*********************************************************************************************/
 /* assign an array & element from a var */
+
 TSP_REMOVABLE int
 TSP_Util_lang_assign_array_var(Tcl_Interp* interp, Tcl_Obj* targetArrayVar, Tcl_Obj* targetIdxVar, Tcl_Obj* var) {
     Tcl_Obj* obj;
+    if (var==NULL) {return TCL_ERROR;};
+    //debug(interp,"TSP_Util_lang_assign_array_var %p %p %p\n",targetArrayVar,targetIdxVar,var);
     obj = Tcl_ObjSetVar2(interp, targetArrayVar, targetIdxVar, var, TCL_LEAVE_ERR_MSG);
     if (obj == NULL) {
         return TCL_ERROR;

@@ -675,8 +675,7 @@ proc ::tsp::lang_assign_var_var {targetVarName sourceVarName {preserve 1}} {
 #   which is preserved and released
 #
 proc ::tsp::lang_assign_array_var {targetArrayVar targetIdxVar var} {
-    append result "/* ::tsp::lang_assign_array_var */\n"
-
+    append result "/* ::tsp::lang_assign_array_var $targetArrayVar $targetIdxVar $var */\n"
     append result "TSP_Util_lang_assign_array_var(interp, $targetArrayVar, $targetIdxVar, $var);\n"
     return $result
 }

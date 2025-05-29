@@ -659,7 +659,7 @@ proc ::tsp::gen_assign_var_string_interpolated_string {compUnitDict targetVarNam
     }
 
     set targetPre [::tsp::var_prefix $targetVarName]
-    append result "\n/***** ::tsp::gen_assign_var_string_interpolated_string */\n"
+    append result "\n/***** ::tsp::gen_assign_var_string_interpolated_string targetType $targetType */\n"
     
     set tmp [::tsp::get_tmpvar compUnit string]
     set tmp2 ""
@@ -671,7 +671,8 @@ proc ::tsp::gen_assign_var_string_interpolated_string {compUnitDict targetVarNam
     # fix: why is this not reset?
     if {$targetType eq "string"} {
         if {$targetPre!=""} {
-            append result  "Tcl_DStringSetLength($targetPre$targetVarName,0);\n"
+            append result [::tsp::lang_assign_empty_zero $targetPre$targetVarName string]
+            #append result  "/* DEBUG Tcl_DStringSetLength($targetPre$targetVarName,0);*/\n"
         }
     }
         
@@ -716,6 +717,7 @@ proc ::tsp::gen_assign_var_string_interpolated_string {compUnitDict targetVarNam
             }
             text_array_idxvar - array_idxvar {
                  append code "//Parsing Array $compType in $component of $sourceComponents\n"
+                 puts "//Parsing Array $compType in $component of $sourceComponents\n"
                  #::tsp::addWarning compUnit "$compType not implemented $component $sourceComponents"
                  #append code "//Parsing $component in $sourceComponents\n"
 				set tmp_s [::tsp::get_tmpvar compUnit string]
@@ -746,12 +748,14 @@ proc ::tsp::gen_assign_var_string_interpolated_string {compUnitDict targetVarNam
 				        append code "//Missing source in $sourceComponents\n"
 				        continue
 				    } else {
+				        error "DEBUG here, this is an unknown testcase??? 2025-04-18"
                         #::tsp::addWarning compUnit "set arg 2 interpolated string should not contain $compType as $sourceText in $sourceComponents, only commands, text, backslash, or scalar variables\n"
                         set newsource "[lindex $sourceComponents 1]("
                         #append code "// Convert |$newsource|  to $tmp via $tmp_s\n"
                         append code [::tsp::lang_assign_string_const $tmp $newsource]
                         append code [::tsp::lang_append_string $tmp $tmp_s]
-                        append code "Tcl_DStringAppend($tmp,\")\",-1);\n"
+                        append code [::tsp::lang_append_string $tmp "\")\""]
+                        append code "// DEBUG Tcl_DStringAppend($tmp,\")\",-1);\n//DEBUG Appended additional braces\n"
                         set doreturn 1
                     }
 				}
@@ -899,6 +903,7 @@ proc ::tsp::gen_assign_array_scalar {compUnitDict targetVarName targetArrayIdxte
             append code [::tsp::lang_assign_var_$sourceType $value $pre$sourceVarName]
         } else {
             # it's a native var, use a shadow var
+            ::tsp::setDirty compUnit $sourceVarName
             lassign [::tsp::getCleanShadowVar compUnit $sourceVarName] value shadowCode
             append code $shadowCode
         }

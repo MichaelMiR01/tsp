@@ -800,22 +800,33 @@ proc ::tsp::mkComment {text {len 40} {rawOnly 0}} {
 # get a clean shadow var for a native variable
 # generates code to set the shadow var if native variable is currently dirty
 # returns list of {var code}
+# BUG FIXME This does not really work, if the shadow var gets set clean in a different code-path!
+# HACK At least inserted a test if shadowVar is NULL
+# to avoid crashing fron NULL Pointer Deref
 
 proc ::tsp::getCleanShadowVar {compUnitDict nativeVar} {
     upvar $compUnitDict compUnit
     set shadowVar [::tsp::get_tmpvar compUnit var $nativeVar]
+    set argVarComponents [list [list text $shadowVar $shadowVar]]
+    set sourceComponents [list [list scalar $nativeVar]]
+    set setTree ""
     if {[lsearch [::tsp::getCleanList compUnit] $nativeVar] == -1} {
         # var is not clean or not present, generate an assignment
-        set argVarComponents [list [list text $shadowVar $shadowVar]]
-        set sourceComponents [list [list scalar $nativeVar]]
-        set setTree ""
         set result "\n/* set shadow variable $nativeVar */"
         append result [lindex [::tsp::produce_set compUnit $setTree $argVarComponents $sourceComponents] 2]
         # mark the native variable clean
-        ::tsp::setDirty compUnit $nativeVar 0
+# BUG FIXME This does not really work, if the shadow var gets set clean in a different code-path!
+# REMOVED, since it broke in case of multiple loops
+# heapsort failed dramatically
+        # ::tsp::setDirty compUnit $nativeVar 0
     } else {
         # var is clean no need to re-assign
         set result "/* shadow variable $nativeVar marked as clean */\n"
+        # prevent, that it's null
+        append result "if($shadowVar==NULL) {\n"
+        append result [lindex [::tsp::produce_set compUnit $setTree $argVarComponents $sourceComponents] 2]
+        append result "}\n"
+        
     }
 
     return [list $shadowVar $result]

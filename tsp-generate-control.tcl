@@ -19,14 +19,14 @@ proc ::tsp::gen_command_for {compUnitDict tree} {
 
     set rawtext [::tsp::parse_getstring compUnit [lindex $tree 1]]
     if {[string range $rawtext 0 0] ne "\{"} {
-        ::tsp::addError compUnit "start code argument not a braced word"
+        ::tsp::addError compUnit "start code argument not a braced word $rawtext"
         return [list void "" ""]
     }
     set pretext [lindex $rawtext 0]
 
     set rawtext [::tsp::parse_getstring compUnit [lindex $tree 2]]
     if {[string range $rawtext 0 0] ne "\{"} {
-        ::tsp::addError compUnit "test expr argument not a braced expression"
+        ::tsp::addError compUnit "test expr argument not a braced expression $rawtext"
         return [list void "" ""]
     }
     set exprtext [lindex $rawtext 0]
@@ -112,7 +112,7 @@ proc ::tsp::gen_command_while {compUnitDict tree} {
     # get expr component, make sure it is braced
     set rawtext [::tsp::parse_getstring compUnit [lindex $tree 1]]
     if {[string range $rawtext 0 0] ne "\{"} {
-        ::tsp::addError compUnit "expr argument not a braced expression"
+        ::tsp::addError compUnit "expr argument not a braced expression $rawtext"
         return [list void "" ""]
     }
     set exprtext [lindex $rawtext 0]
