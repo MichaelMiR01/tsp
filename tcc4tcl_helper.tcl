@@ -291,10 +291,10 @@ proc ::tcc4tcl::prepare_compilerdirectives {filepath handle} {
     set includesgcclin64 "-Iinclude -Iinclude/generic -Iinclude/generic/unix -Iinclude/xlib"
     set includesuser ""
 
-    set librariestccwin32 "-ltclstub86elf -ltkstub86elf"
-    set librariestcclin64 "-ltclstub86_64 -ltkstub86_64"
-    set librariesgccwin32 "-Llib -ltclstub86 -ltkstub86"
-    set librariesgcclin64 "-Llib -ltclstub86_64 -ltkstub86_64"
+    set librariestccwin32 "-Llib_win32 -ltclstub86elf -ltkstub86elf"
+    set librariestcclin64 "-Llib -ltclstub86_64 -ltkstub86_64"
+    set librariesgccwin32 "-Llib_win32 -ltclstub86 -ltkstub86"
+    set librariesgcclin64 "-Llib -ltclstub86 -ltkstub86"
     set librariesuser ""
     
     set ccoptionstccwin32 "-m32 -D_WIN32 "
@@ -315,7 +315,7 @@ proc ::tcc4tcl::prepare_compilerdirectives {filepath handle} {
     }
     
     set libraries_addon ""
-    lappend libraries_addon "-Llib"
+    #lappend libraries_addon "-Llib"
     set libps ""
     set libs ""
     set opts ""

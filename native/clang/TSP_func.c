@@ -372,6 +372,7 @@ _TSP_func_double_pow(int* rc, char** exprErrMsg, double x, double y) {
 }
 
 #define TSP_func_int_pow(a,b) _TSP_func_double_int_pow(rc, &exprErrMsg, (a), (b))
+#define TSP_func_double_int_pow(a,b) _TSP_func_double_int_pow(rc, &exprErrMsg, (a), (b))
 TSP_REMOVABLE double
 _TSP_func_double_int_pow(int* rc, char** exprErrMsg, double x, Tcl_WideInt y) {
     double z;

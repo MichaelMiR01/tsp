@@ -15,7 +15,7 @@ int TSP_debug(Tcl_Interp* interp, char const *format, ...) {
     if(__buf[ret-1]=='\n') __buf[ret-1]=0;
     Tcl_Interp* ip =  interp; 
     if (ip==NULL) Tcl_Panic("No interp found to call tcl routine!");
-    mod_Tcl_errorCode=0;
+    //mod_Tcl_errorCode=0;
     Tcl_Obj*  argObjvArray [2];
     Tcl_Obj* funcname = Tcl_NewStringObj("puts",-1);
     Tcl_IncrRefCount(funcname);
